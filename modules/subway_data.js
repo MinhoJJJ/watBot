@@ -1,5 +1,5 @@
 // 지하철역 가져오기
-function getKoreaSubwayInfo(msg){
+function getKoreaSubwayInfo(msg,apiKey){
     let arriveMessage="";
 
     let station=msg.substr(3);
@@ -7,7 +7,7 @@ function getKoreaSubwayInfo(msg){
 
 
     // AJAX 요청
-    let stationUrl="http://swopenAPI.seoul.go.kr/api/subway/6861724e716d656e36354f78627451/json/realtimeStationArrival/0/5/"
+    let stationUrl="http://swopenAPI.seoul.go.kr/api/subway/"+apiKey+"/json/realtimeStationArrival/0/5/"
     stationUrl+=station;
 
     const response = org.jsoup.Jsoup.connect(stationUrl)

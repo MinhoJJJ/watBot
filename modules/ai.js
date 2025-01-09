@@ -1,8 +1,7 @@
 // chat gpt AI API 키 설정
-const key = "sk-CvO61AzyYuNdBai1CuqdT3BlbkFJFKvObIxXXxLiVD45eP4e"; // Open AI 사이트에서 발급받은 API 키입력
 
 // AI 챗지피티
-function getAIResponse(msg) {
+function getAIResponse(msg,apiKey) {
 
     let text=msg.substr(3);
 
@@ -27,7 +26,7 @@ function getAIResponse(msg) {
     try {
         const response = org.jsoup.Jsoup.connect("https://api.openai.com/v1/chat/completions")
             .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer " + key)
+            .header("Authorization", "Bearer " + apiKey)
             .requestBody(JSON.stringify(data))
             .ignoreContentType(true)
             .ignoreHttpErrors(true)

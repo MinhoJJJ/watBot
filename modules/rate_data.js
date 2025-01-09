@@ -1,8 +1,7 @@
 // 환율 가져오기기
-function getRate(){
+function getRate(apiKey){
     
     let result="";
-    const apiKey="5pmDmFCxFd5Ih60a643HMtRa6EJrlHOF";   // API 키 입력
 
     result+="[환율정보 "+new Date().toLocaleDateString()+"]\n\n";   // 오늘 날짜
 

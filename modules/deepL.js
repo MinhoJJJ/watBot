@@ -1,9 +1,7 @@
 // DeepL API 키 설정
-const DEEPL_API_KEY = 'faa1f51d-b626-481e-b08f-8588ae1b3e39:fx';
-const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate';
 
 // DEEPL 번역
-function getTransResponse(msg) {
+function getTransResponse(msg,apiKey) {
 
     let target_lang="";  // 변경할 언어
     let source_lang="";  // 채팅으로 나온 언어
@@ -35,7 +33,7 @@ function getTransResponse(msg) {
         // API 호출
         const response = org.jsoup.Jsoup.connect("https://api-free.deepl.com/v2/translate")
             .header("Content-Type", "application/json")
-            .header("Authorization", "DeepL-Auth-Key " + DEEPL_API_KEY)
+            .header("Authorization", "DeepL-Auth-Key " + apiKey)
             .requestBody(JSON.stringify(requestBody))
             .ignoreContentType(true)
             .ignoreHttpErrors(true)

@@ -30,6 +30,9 @@ const weather_data = require('weather_data.js');
 // 벤리스트 관리
 const ban_list = require('ban_list.js');
 
+// 채팅 이력 관리
+const chat_record = require('chat_record.js');
+
 // API 데이터
 //const api_data = require('apiKey_data.js');
 
@@ -40,6 +43,11 @@ KV.open('/sdcard/msgbot/db/watBot/watBotDB.db');
 
 // 모든 응답 처리기
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
+
+    // 채팅 이력 저장
+    if(!msg.startsWith(".")){
+        chat_record.addChatCount(sender,KV);
+    }
 
     if(ban_list.containsForbiddenWord(msg,KV) && !msg.startsWith(".")){
         let cnt = ban_list.addBanCount(sender,KV);
@@ -62,6 +70,30 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             }
             replier.reply(result);
         }
+        else if (msg.startsWith(".채팅랭킹")) {
+            let topList = chat_record.getTopChatters(KV);
+            if (topList.length === 0) {
+                replier.reply("오늘 채팅 기록이 없습니다.");
+            } else {
+                let replyText = "오늘 최다 채팅자:\n";
+                topList.forEach(([user, count], index) => {
+                    replyText += `${index+1}. ${user} - ${count}회\n`;
+                });
+                replier.reply(replyText);
+            }
+        }
+        else if (msg.startsWith(".월채팅랭킹")) {
+            let topList = chat_record.getMonthlyTopChatters(KV);
+            if (topList.length === 0) {
+                replier.reply("이번 달 채팅 기록이 없습니다.");
+            } else {
+                let replyText = "이번 달 최대 채팅자 :\n";
+                topList.forEach(([user, count], index) => {
+                    replyText += `${index+1}. ${user} - ${count}회\n`;
+                });
+                replier.reply(replyText);
+            }
+        }       
         // 왓봇 AI 응답
         else if (msg.startsWith(".금지어목록")) {
             let list = ban_list.getForbiddenWords(KV);

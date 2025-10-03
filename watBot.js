@@ -27,6 +27,9 @@ const command_data = require('command_data.js');
 // 날씨 데이터
 const weather_data = require('weather_data.js');
 
+// 벤리스트 관리
+const ban_list = require('ban_list.js');
+
 // API 데이터
 //const api_data = require('apiKey_data.js');
 
@@ -38,6 +41,11 @@ KV.open('/sdcard/msgbot/db/watBot/watBotDB.db');
 // 모든 응답 처리기
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
 
+    if(ban_list.containsForbiddenWord(msg,KV) && !msg.startsWith(".")){
+        let cnt = ban_list.addBanCount(sender,KV);
+        replier.reply(sender + "님 19금 단어 사용: "+cnt+"회");
+    }
+
     // 중복실행 방지
     if(msg.startsWith(".") && nows =='0'){
 
@@ -45,10 +53,32 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         nows ='1';
 
         // 왓봇 AI 응답
-        if (msg.startsWith(".저장")) {
-            // 응답
-            KV.put("test","hi");
-            replier.reply("내역보기:"+KV.get("test"));
+        if (msg.startsWith(".금지어추가 ")) {
+            let result ="";
+            if(ban_list.addForbiddenWord(msg,KV)){
+                result ="금지어 추가 성공"
+            }else{
+                result ="금지어 추가 실패"
+            }
+            replier.reply(result);
+        }
+        // 왓봇 AI 응답
+        else if (msg.startsWith(".금지어목록")) {
+            let list = ban_list.getForbiddenWords(KV);
+            if (list.length === 0) {
+                replier.reply("현재 금지어 목록이 비어 있습니다.");
+            } else {
+                replier.reply("현재 금지어 목록: " + list.join(", "));
+            }
+        }
+        // 왓봇 AI 응답
+        else if (msg.startsWith(".금지어삭제 ")) {
+            let result = ban_list.removeForbiddenWord(msg,KV);
+            if (result) {
+                replier.reply("금지어 삭제 성공");
+            } else {
+                replier.reply("금지어 삭제 실패");
+            }
         }
         // 왓봇 AI 응답
         else if (msg.startsWith(".챗 ")) {

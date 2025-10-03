@@ -28,8 +28,12 @@ const command_data = require('command_data.js');
 const weather_data = require('weather_data.js');
 
 // API 데이터
-const api_data = require('apiKey_data.js');
+//const api_data = require('apiKey_data.js');
 
+// DB 객체 생성
+const RhinoKV = require('RhinoKV');
+KV = new RhinoKV(); 
+KV.open('/msgbot/watBot/watBotDB.db');
 
 // 모든 응답 처리기
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
@@ -41,15 +45,21 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         nows ='1';
 
         // 왓봇 AI 응답
+        if (msg.startsWith(".저장 ㅎㅇ ")) {
+            // 응답
+            //KV.put("test","hi");
+            //replier.reply(KV.get("test").value);
+        }
+        // 왓봇 AI 응답
         if (msg.startsWith(".챗 ")) {
             // 응답
-            replier.reply(ai_data.getAIResponse(msg,api_data.getApiKey("gpt")));
+           // replier.reply(ai_data.getAIResponse(msg,api_data.getApiKey("gpt")));
         }
 
         // 왓봇  번역 응답
         else if ((msg.startsWith(".번역 ") || msg.startsWith(".84 ") )) {
             // 응답
-            replier.reply(deepL_data.getTransResponse(msg,api_data.getApiKey("deepl")));
+          //  replier.reply(deepL_data.getTransResponse(msg,api_data.getApiKey("deepl")));
         }
 
         // 공항 전철 시간표 안내
@@ -73,7 +83,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         // 실시간 환율
         else if (msg.startsWith(".환율")) {
             // 응답
-            replier.reply(rate_data.getRate(api_data.getApiKey("rate")));
+           // replier.reply(rate_data.getRate(api_data.getApiKey("rate")));
         }
 
         // 버스 노선 불러오기

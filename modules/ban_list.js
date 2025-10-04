@@ -1,3 +1,20 @@
+// 금지어 관련 함수 분기
+function getBanListFuntion(msg,KV) {
+
+    // 금지어 추가
+    if (msg.startsWith(".금지어추가 ")) {
+        return addForbiddenWord(msg,KV);
+    }       
+    // 금지어 목록 보기
+    else if (msg.startsWith(".금지어목록")) {
+        return showForbiddenWords(KV);
+    }
+
+    // 금지어 삭제
+    else if (msg.startsWith(".금지어삭제 ")) {
+        return removeForbiddenWord(msg,KV);
+    }
+}
 
 // 금지어 리스트 가져오기
 function getForbiddenWords(KV) {
@@ -11,7 +28,7 @@ function getForbiddenWords(KV) {
 
 // 금지어 목록 보기
 function showForbiddenWords(KV) {
-    let list = ban_list.getForbiddenWords(KV);
+    let list = getForbiddenWords(KV);
     if (list.length === 0) {
         return "현재 금지어 목록이 비어 있습니다.";
     } else {
@@ -69,8 +86,6 @@ function addBanCount(sender,KV) {
 
 
 // export 데이터
+exports.getBanListFuntion = getBanListFuntion;
 exports.containsForbiddenWord = containsForbiddenWord;
 exports.addBanCount = addBanCount;
-exports.addForbiddenWord = addForbiddenWord;
-exports.getForbiddenWords = getForbiddenWords;
-exports.removeForbiddenWord = removeForbiddenWord;

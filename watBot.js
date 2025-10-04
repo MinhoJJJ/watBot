@@ -50,8 +50,13 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     }
 
     // 19금 단어 카운팅
-    if(ban_list.containsForbiddenWord(msg,KV) && !msg.startsWith(".")){
-        replier.reply( ban_list.addBanCount(sender,KV));
+    if(ban_list.containsForbiddenWord(msg,KV,"19") && !msg.startsWith(".")){
+        replier.reply( ban_list.addBanCount(sender,KV,"19"));
+    }
+
+    // 금지어 단어 카운팅
+    if(ban_list.containsForbiddenWord(msg,KV,null) && !msg.startsWith(".")){
+        replier.reply( ban_list.addBanCount(sender,KV,null));
     }
 
     // 중복실행 방지

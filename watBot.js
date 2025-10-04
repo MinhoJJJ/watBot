@@ -34,7 +34,7 @@ const ban_list = require('ban_list.js');
 const chat_record = require('chat_record.js');
 
 // API 데이터
-//const api_data = require('apiKey_data.js');
+const apiKey = require('api_key_list.js');
 
 // DB 객체 생성
 const RhinoKV = require('RhinoKV');
@@ -49,9 +49,9 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         chat_record.addChatCount(sender,KV);
     }
 
+    // 19금 단어 카운팅
     if(ban_list.containsForbiddenWord(msg,KV) && !msg.startsWith(".")){
-        let cnt = ban_list.addBanCount(sender,KV);
-        replier.reply(sender + "님 19금 단어 사용: "+cnt+"회");
+        replier.reply( ban_list.addBanCount(sender,KV));
     }
 
     // 중복실행 방지
@@ -60,16 +60,12 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         // 중복실행 방지 변수
         nows ='1';
 
-        // 왓봇 AI 응답
+        // 금지어 추가하기
         if (msg.startsWith(".금지어추가 ")) {
-            let result ="";
-            if(ban_list.addForbiddenWord(msg,KV)){
-                result ="금지어 추가 성공"
-            }else{
-                result ="금지어 추가 실패"
-            }
-            replier.reply(result);
+            replier.reply(ban_list.addForbiddenWord(msg,KV));
         }
+
+        // 채팅 랭킹
         else if (msg.startsWith(".채팅랭킹")) {
             let topList = chat_record.getTopChatters(KV);
             if (topList.length === 0) {
@@ -82,6 +78,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                 replier.reply(replyText);
             }
         }
+        // 월간 채팅 랭킹
         else if (msg.startsWith(".월채팅랭킹")) {
             let topList = chat_record.getMonthlyTopChatters(KV);
             if (topList.length === 0) {
@@ -94,81 +91,62 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                 replier.reply(replyText);
             }
         }       
-        // 왓봇 AI 응답
+        // 금지어 목록 보기
         else if (msg.startsWith(".금지어목록")) {
-            let list = ban_list.getForbiddenWords(KV);
-            if (list.length === 0) {
-                replier.reply("현재 금지어 목록이 비어 있습니다.");
-            } else {
-                replier.reply("현재 금지어 목록: " + list.join(", "));
-            }
+            replier.reply(ban_list.showForbiddenWords(KV));
         }
-        // 왓봇 AI 응답
+
+        // 금지어 삭제
         else if (msg.startsWith(".금지어삭제 ")) {
-            let result = ban_list.removeForbiddenWord(msg,KV);
-            if (result) {
-                replier.reply("금지어 삭제 성공");
-            } else {
-                replier.reply("금지어 삭제 실패");
-            }
+            replier.reply(ban_list.removeForbiddenWord(msg,KV));
         }
         // 왓봇 AI 응답
         else if (msg.startsWith(".챗 ")) {
-            // 응답
-           // replier.reply(ai_data.getAIResponse(msg,api_data.getApiKey("gpt")));
+            replier.reply(ai_data.getAIResponse(msg,apiKey.getApiKey("gpt")));
         }
 
         // 왓봇  번역 응답
         else if ((msg.startsWith(".번역 ") || msg.startsWith(".84 ") )) {
-            // 응답
           //  replier.reply(deepL_data.getTransResponse(msg,api_data.getApiKey("deepl")));
         }
 
         // 공항 전철 시간표 안내
         else if ((msg.startsWith(".간사이") || msg.startsWith(".나리타"))) {
-            // 응답
             replier.reply(station_time_data.getUpcomingTrains(msg));
         }
 
         // 베이비 데이터
         else if (msg.startsWith(".아동")) {
-            // 응답
             replier.reply(baby_data.getbabyMsg(msg));
         }
 
         // 실시간 지하철
         else if (msg.startsWith(".역 ")) {
-            // 응답
-            replier.reply(subway_data.getKoreaSubwayInfo(msg,api_data.getApiKey("subway")));
+            //replier.reply(subway_data.getKoreaSubwayInfo(msg,api_data.getApiKey("subway")));
         }
 
         // 실시간 환율
         else if (msg.startsWith(".환율")) {
-            // 응답
            // replier.reply(rate_data.getRate(api_data.getApiKey("rate")));
         }
 
         // 버스 노선 불러오기
         else if ((msg.startsWith(".버스")) ){
-            // 응답
             replier.reply(bus_data.getBusInfo(msg));
         }
 
         // 사용가능한 명령어
         else if ((msg.startsWith(".명령어")) ){
-            // 응답
             replier.reply(command_data.getCommandData(msg));
         }
 
         // 방장소환
         else if ((msg.startsWith(".왓")) || (msg.startsWith(".나폴")) || (msg.startsWith(".승겡")) ){
-            // 응답
             replier.reply(command_data.getComeMaster(msg));
         }
 
         // 지우개
         else if ((msg.startsWith(".지우개")) ){
-            // 응답
             for(let i = 0; i < 5; i++) {
                 replier.reply(command_data.getComeMaster(msg));
             }
@@ -176,13 +154,11 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
         // 실시간 날씨
         else if (msg.startsWith(".날씨")) {
-            // 응답
             replier.reply(weather_data.getWeatherFromNaver(msg));
         }
 
         // 실시간 환전
         else if (msg.startsWith(".환전")) {
-            // 응답
             replier.reply(rate_data.getChangMoney(msg));
         }
 

@@ -14,12 +14,7 @@ const RATE_API_KEY="";// API 키 입력
 //제미나이
 const GEMINI_API_KEY="";// API 키 입력
 
-
-// export 데이터
-exports.getBusInfo = getBusInfo;
-
-
-function getApiKey(msg){
+function getApiKey1(msg){
 
     let result;
 
@@ -37,4 +32,4 @@ function getApiKey(msg){
 }
 
 // export 데이터
-exports.getApiKey = getApiKey;
+exports.getApiKey1 = getApiKey1;

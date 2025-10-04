@@ -11,6 +11,9 @@ const SUBWAY_API_KEY="";
 //환율
 const RATE_API_KEY="";// API 키 입력
 
+//제미나이
+const GEMINI_API_KEY="";// API 키 입력
+
 
 // export 데이터
 exports.getBusInfo = getBusInfo;

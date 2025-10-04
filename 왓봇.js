@@ -4,7 +4,7 @@ let nows ='0';
 const station_time_data = require('station_time_data.js');
 
 // AI CHAT GPT
-const ai_data = require('ai.js');
+const ai_data = require('ai_gpt.js');
 
 // DEEPL 번역기
 const deepL_data = require('deepL.js');

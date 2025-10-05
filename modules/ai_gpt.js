@@ -1,21 +1,31 @@
 // chat gpt AI API 키 설정
+const CHAT_HISTORY_LIMIT = 10; // 사용자별 대화기록 최대 10개
+const chatHistory = {}; // 사용자별 대화기록 저장용 객체
 
 // AI 챗지피티
-function getAIResponse(msg,apiKey) {
+function getAIResponse(sender,msg,apiKey) {
 
     let text=msg.substr(3);
-
     let result;
+
+    // 사용자별 대화기록 초기화
+    if (!chatHistory[sender]) {
+        chatHistory[sender] = [
+            { role: "system", content: "너는 친절하고 유머감각 있는 AI 어시스턴트야." }
+        ];
+    }
+
+    // 새로운 질문 추가
+    chatHistory[sender].push({ role: "user", content: text });
+
+    // 기록이 너무 길면 오래된 것 삭제
+    if (chatHistory[sender].length > CHAT_HISTORY_LIMIT * 2) {
+        chatHistory[sender] = chatHistory[sender].slice(-CHAT_HISTORY_LIMIT * 2);
+    }
+
     const data = {
         "model": "gpt-3.5-turbo",
-        "messages": [{
-
-            "role": "system",
-            "content": "친절하다"}
-            ,{"role":"assistant","content":"친절하다"}
-            ,{"role":"user","content":text}
-        ],
-
+        "messages": chatHistory[sender],
         "temperature": 0,
         "max_tokens": 300,
         "top_p": 0.4,
@@ -32,9 +42,24 @@ function getAIResponse(msg,apiKey) {
             .ignoreHttpErrors(true)
             .timeout(20000)
             .post();
-            const result1 = JSON.parse(response.text());
+
+        const result1 = JSON.parse(response.text());
+        const statusCode = response.statusCode();
+
+                // 401 Unauthorized → API 키 문제
+        if (statusCode === 401) {
+            return "⚠️ API 키가 잘못되었거나 만료되었습니다. \nOpenAI API Key를 다시 확인해주세요.";
+        }
+        // 다른 오류 코드 처리
+        if (statusCode >= 400) {
+            return "❌ OpenAI API 호출 실패 (" + statusCode + ")\n" + responseText;
+        }
 
         if (result1.choices && result1.choices.length > 0 && result1.choices[0].message && result1.choices[0].message.content) {
+
+            // 대화기록에 AI 답변 추가
+            chatHistory[sender].push({ role: "assistant", content: aiMessage });
+
             result = "[AI봇] \n" + result1.choices[0].message.content;
         } else {
             throw new Error("대화 결과를 가져올 수 없습니다.");
@@ -43,6 +68,15 @@ function getAIResponse(msg,apiKey) {
         result = "오류가 발생했습니다: " + e.message;
     }
     return result;
+}
+
+// 대화 기록 초기화 함수
+function clearChatHistory(sender) {
+    if (chatHistory[sender]) {
+        delete chatHistory[sender];
+        return "✅ 대화 기록이 초기화되었습니다.";
+    }
+    return "ℹ️ 삭제할 대화 기록이 없습니다.";
 }
 
 exports.getAIResponse = getAIResponse;

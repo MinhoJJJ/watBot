@@ -10,13 +10,13 @@ KV.open('/sdcard/msgbot/db/watBot/watBotDB.db');
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
 
     // 채팅 이력 저장
-    if (!msg.startsWith(".")) {    modules.chat_record.addChatCount(sender, KV, room);}
+    if (!msg.startsWith(".")) { modules.chat_record.addChatCount(sender, KV, room);}
 
     // 19금 단어 카운팅
-    if (modules.ban_list.containsForbiddenWord(msg, KV, "19") && !msg.startsWith(".")) {    replier.reply(modules.ban_list.addBanCount(sender, KV, "19"));}
+    if (modules.ban_list.containsForbiddenWord(msg, KV, "19") && !msg.startsWith(".")) { replier.reply(modules.ban_list.addBanCount(sender, KV, "19"));}
 
     // 금지어 단어 카운팅
-    if (modules.ban_list.containsForbiddenWord(msg, KV, null) && !msg.startsWith(".")) {    replier.reply(modules.ban_list.addBanCount(sender, KV, null));}
+    if (modules.ban_list.containsForbiddenWord(msg, KV, null) && !msg.startsWith(".")) { replier.reply(modules.ban_list.addBanCount(sender, KV, null));}
 
     // 중복실행 방지
     if (msg.startsWith(".") && nows == '0') {
@@ -29,7 +29,8 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             replier.reply(modules.ban_list.getBanListFuntion(msg, KV));
         }
         else if (msg.startsWith(".챗 ")) {
-            replier.reply(modules.ai_data.getAIResponse(msg, modules.apiKey.getApiKey("gpt")));
+           // replier.reply(modules.ai_gpt_data.getAIResponse(sender,msg, modules.api_key.getApiKey("gpt")));
+            replier.reply(modules.ai_gemini_data.getAIResponse(sender,msg, modules.api_key.getApiKey("gemini")));
         }
         else if ((msg.startsWith(".번역 ") || msg.startsWith(".84 "))) {
             // replier.reply(modules.deepL_data.getTransResponse(msg, modules.apiKey.getApiKey("deepl")));
@@ -38,10 +39,10 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             replier.reply(modules.station_time_data.getUpcomingTrains(msg));
         }
         else if (msg.startsWith(".역 ")) {
-            replier.reply(modules.subway_data.getKoreaSubwayInfo(msg, modules.apiKey.getApiKey("subway")));
+            replier.reply(modules.subway_data.getKoreaSubwayInfo(msg, modules.api_key.getApiKey("subway")));
         }
         else if (msg.startsWith(".환율")) {
-            replier.reply(modules.rate_data.getRate(modules.apiKey.getApiKey("rate")));
+            replier.reply(modules.rate_data.getRate(modules.api_key.getApiKey("rate")));
         }
         else if ((msg.startsWith(".버스"))) {
             replier.reply(modules.bus_data.getBusInfo(msg));

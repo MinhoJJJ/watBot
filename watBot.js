@@ -5,6 +5,11 @@ const modules = require('total_modules.js');
 let KV = new modules.RhinoKV();
 KV.open('/sdcard/msgbot/db/watBot/watBotDB.db');
 
+// 봇 세팅
+bot.setCommandPrefix(".");
+bot.addListener(Event.COMMAND, onCommand);
+bot.addListener(Event.MESSAGE, onMessage);
+
 let isRunning = false; // 중복 실행 방지
 
 function onCommand(msg) {
@@ -18,16 +23,17 @@ function onCommand(msg) {
     const command = msg.command;
     const args = msg.args;
     const content = msg.content;
+    const sender = msg.author.name;
 
     try {
-        if (command === "채팅") {
+        if (command.startsWith("채팅")) {
             msg.reply(modules.chat_record.getChatRecordFuntion(content, KV, msg.room));
         }
         else if (command.startsWith("금지어")) {
             msg.reply(modules.ban_list.getBanListFuntion(content, KV));
         }
         else if (command === "챗") {
-            msg.reply(modules.ai_gemini_data.getAIResponse(msg.author, content, modules.api_key.getApiKey("gemini")));
+            msg.reply(modules.ai_gemini_data.getAIResponse(sender, content, modules.api_key.getApiKey("gemini")));
         }
         else if (command === "번역" || command === "84") {
             msg.reply(modules.deepL_data.getTransResponse(content, modules.api_key.getApiKey("deepl")));
@@ -63,19 +69,20 @@ function onCommand(msg) {
     }
 }
 
-bot.setCommandPrefix(".");
-bot.addListener(Event.COMMAND, onCommand);
-
 function onMessage(msg) {
-    if (!msg.content.startsWith(".")) {
-        modules.chat_record.addChatCount(msg.author, KV, msg.room);
 
-        if (modules.ban_list.containsForbiddenWord(msg.content, KV, "19")) {
-            msg.reply(modules.ban_list.addBanCount(msg.author, KV, "19"));
+    const content = msg.content;
+    const sender = msg.author.name;
+
+    if (!content.startsWith(".")) {
+        modules.chat_record.addChatCount(sender, KV, msg.room);
+
+        if (modules.ban_list.containsForbiddenWord(content, KV, "19")) {
+            msg.reply(modules.ban_list.addBanCount(sender, KV, "19"));
         }
 
-        if (modules.ban_list.containsForbiddenWord(msg.content, KV, null)) {
-            msg.reply(modules.ban_list.addBanCount(msg.author, KV, null));
+        if (modules.ban_list.containsForbiddenWord(content, KV, null)) {
+            msg.reply(modules.ban_list.addBanCount(sender, KV, null));
         }
     }
 }

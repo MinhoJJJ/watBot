@@ -2,7 +2,8 @@
 function getCommandData(msg){
 
     let result="";
-
+    result +="입력한 명령어: "+msg+"\n"
+    
     if(msg.startsWith(".명령어")){
         result+= "[사용 가능한 명령어]\n\n";
     }else{

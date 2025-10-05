@@ -1,69 +1,106 @@
-let nows ='0';
-
-// require 한번에
+const bot = BotManager.getCurrentBot();
 const modules = require('total_modules.js');
 
 // DB 객체 생성
-KV = new modules.RhinoKV(); 
+let KV = new modules.RhinoKV();
 KV.open('/sdcard/msgbot/db/watBot/watBotDB.db');
 
-function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
+let isRunning = false; // 중복 실행 방지
 
-    // 채팅 이력 저장
-    if (!msg.startsWith(".")) { modules.chat_record.addChatCount(sender, KV, room);}
+function onCommand(msg) {
+    if (isRunning) {
+        msg.reply("봇이 이미 실행중에 있습니다.");
+        return;
+    }
 
-    // 19금 단어 카운팅
-    if (modules.ban_list.containsForbiddenWord(msg, KV, "19") && !msg.startsWith(".")) { replier.reply(modules.ban_list.addBanCount(sender, KV, "19"));}
+    isRunning = true;
 
-    // 금지어 단어 카운팅
-    if (modules.ban_list.containsForbiddenWord(msg, KV, null) && !msg.startsWith(".")) { replier.reply(modules.ban_list.addBanCount(sender, KV, null));}
+    const command = msg.command;
+    const args = msg.args;
+    const content = msg.content;
 
-    // 중복실행 방지
-    if (msg.startsWith(".") && nows == '0') {
-        nows = '1';
-
-        if (msg.startsWith(".채팅")) {
-            replier.reply(modules.chat_record.getChatRecordFuntion(msg, KV, room));
+    try {
+        if (command === "채팅") {
+            msg.reply(modules.chat_record.getChatRecordFuntion(content, KV, msg.room));
         }
-        else if (msg.startsWith(".금지어")) {
-            replier.reply(modules.ban_list.getBanListFuntion(msg, KV));
+        else if (command.startsWith("금지어")) {
+            msg.reply(modules.ban_list.getBanListFuntion(content, KV));
         }
-        else if (msg.startsWith(".챗 ")) {
-           // replier.reply(modules.ai_gpt_data.getAIResponse(sender,msg, modules.api_key.getApiKey("gpt")));
-            replier.reply(modules.ai_gemini_data.getAIResponse(sender,msg, modules.api_key.getApiKey("gemini")));
+        else if (command === "챗") {
+            msg.reply(modules.ai_gemini_data.getAIResponse(msg.author, content, modules.api_key.getApiKey("gemini")));
         }
-        else if ((msg.startsWith(".번역 ") || msg.startsWith(".84 "))) {
-            // replier.reply(modules.deepL_data.getTransResponse(msg, modules.apiKey.getApiKey("deepl")));
+        else if (command === "번역" || command === "84") {
+            msg.reply(modules.deepL_data.getTransResponse(content, modules.api_key.getApiKey("deepl")));
         }
-        else if ((msg.startsWith(".간사이") || msg.startsWith(".나리타"))) {
-            replier.reply(modules.station_time_data.getUpcomingTrains(msg));
+        else if (command === "간사이" || command === "나리타") {
+            msg.reply(modules.station_time_data.getUpcomingTrains(content));
         }
-        else if (msg.startsWith(".역 ")) {
-            replier.reply(modules.subway_data.getKoreaSubwayInfo(msg, modules.api_key.getApiKey("subway")));
+        else if (command === "역") {
+            msg.reply(modules.subway_data.getKoreaSubwayInfo(content, modules.api_key.getApiKey("subway")));
         }
-        else if (msg.startsWith(".환율")) {
-            replier.reply(modules.rate_data.getRate(modules.api_key.getApiKey("rate")));
+        else if (command === "환율") {
+            msg.reply(modules.rate_data.getRate(modules.api_key.getApiKey("rate")));
         }
-        else if ((msg.startsWith(".버스"))) {
-            replier.reply(modules.bus_data.getBusInfo(msg));
+        else if (command === "버스") {
+            msg.reply(modules.bus_data.getBusInfo(content));
         }
-        else if ((msg.startsWith(".명령어"))) {
-            replier.reply(modules.command_data.getCommandData(msg));
+        else if (command === "명령어") {
+            msg.reply(modules.command_data.getCommandData(content));
         }
-        else if (msg.startsWith(".날씨")) {
-            replier.reply(modules.weather_data.getWeatherFromNaver(msg));
+        else if (command === "날씨") {
+            msg.reply(modules.weather_data.getWeatherFromNaver(content));
         }
-        else if (msg.startsWith(".환전")) {
-            replier.reply(modules.rate_data.getChangMoney(msg));
+        else if (command === "환전") {
+            msg.reply(modules.rate_data.getChangMoney(content));
         }
         else {
-            replier.reply(modules.command_data.getCommandData(msg));
+            msg.reply(modules.command_data.getCommandData(content));
         }
-
-        // 중복실행 방지 변수
-        nows ='0';
-    }else if(msg.startsWith(".") && nows =='1'){
-        replier.reply("봇이 이미 실행중에 있습니다.");
+    } catch (e) {
+        msg.reply("오류 발생: "+e);
+    } finally {
+        isRunning = false; // 실행 완료 후 초기화
     }
 }
 
+bot.setCommandPrefix(".");
+bot.addListener(Event.COMMAND, onCommand);
+
+function onMessage(msg) {
+    if (!msg.content.startsWith(".")) {
+        modules.chat_record.addChatCount(msg.author, KV, msg.room);
+
+        if (modules.ban_list.containsForbiddenWord(msg.content, KV, "19")) {
+            msg.reply(modules.ban_list.addBanCount(msg.author, KV, "19"));
+        }
+
+        if (modules.ban_list.containsForbiddenWord(msg.content, KV, null)) {
+            msg.reply(modules.ban_list.addBanCount(msg.author, KV, null));
+        }
+    }
+}
+
+
+function onCreate(savedInstanceState, activity) {
+    var textView = new android.widget.TextView(activity);
+    textView.setText("Hello, World!");
+    textView.setTextColor(android.graphics.Color.DKGRAY);
+    activity.setContentView(textView);
+}
+
+function onStart(activity) {}
+function onResume(activity) {}
+function onPause(activity) {}
+function onStop(activity) {}
+function onRestart(activity) {}
+function onDestroy(activity) {}
+function onBackPressed(activity) {}
+
+bot.addListener(Event.Activity.CREATE, onCreate);
+bot.addListener(Event.Activity.START, onStart);
+bot.addListener(Event.Activity.RESUME, onResume);
+bot.addListener(Event.Activity.PAUSE, onPause);
+bot.addListener(Event.Activity.STOP, onStop);
+bot.addListener(Event.Activity.RESTART, onRestart);
+bot.addListener(Event.Activity.DESTROY, onDestroy);
+bot.addListener(Event.Activity.BACK_PRESSED, onBackPressed);

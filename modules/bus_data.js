@@ -4,7 +4,6 @@
 라이선스 : CCL BY-NC 4.0 (저작자 표시 필수, 비영리 사용만 허용)
 */
 
-
 // 버스 데이터 가져오기
 function getBusInfo(msg){
 
@@ -12,9 +11,10 @@ function getBusInfo(msg){
     let busNm=msg.substr(3);
 
     const url = 'https://m.map.kakao.com/actions/busDetailInfo?busId=' + busId + '&q=' + busNm;
-    let data = Utils.parse(url);
-    let data2 = Utils.parse(url);
-    let data3 = Utils.parse(url);
+    let data =  org.jsoup.Jsoup.connect(url).get(); 
+    let data2 = org.jsoup.Jsoup.connect(url).get(); 
+    let data3 = org.jsoup.Jsoup.connect(url).get(); 
+    
     let datum;
     let nowBusStop;
     let cnt=0;
@@ -97,8 +97,8 @@ function getBusInfo(msg){
 // 버스 아이디 가져오기
 function getBusId(bus) {
     const url = 'https://m.map.kakao.com/actions/searchView?q=' + encodeURI(bus + ' 버스');
-    const data = Utils.parse(url);
-    const busId = data.select('div.search_result_bus_body').select('li').attr('data-id');
+    const response = org.jsoup.Jsoup.connect(url).get(); 
+    const busId = response.select('div.search_result_bus_body').select('li').attr('data-id');
     return busId;
 }
 

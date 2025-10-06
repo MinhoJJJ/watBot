@@ -4,10 +4,12 @@ function getRate(apiKey){
     let result="";
 
     result+="[환율정보 "+new Date().toLocaleDateString()+"]\n\n";   // 오늘 날짜
+    let today = new Date();
+    let formattedDate = today.getFullYear().toString() +
+        ("0" + (today.getMonth() + 1)).slice(-2) +
+        ("0" + today.getDate()).slice(-2);
 
-
-    // AJAX 요청
-    const response = org.jsoup.Jsoup.connect("https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey="+apiKey+"&data=AP01")
+    const response = org.jsoup.Jsoup.connect("https://oapi.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey="+apiKey+"&searchdate="+formattedDate+"&data=AP01")
         .ignoreContentType(true)
         .ignoreHttpErrors(true)
         .get();
@@ -23,15 +25,18 @@ function getRate(apiKey){
             result+="["+jsonData[i].cur_nm+": "+jsonData[i].kftc_bkpr+"]\n";
         }
     }
-
-    return result;
+    if(result  == null || result == "" || jsonData.length == 0 ){
+        return "금일 환율 정보가 없습니다.";
+    }else{
+        return result;
+    }
 }
 
 function getChangMoney(msg){
 
     let result="";
     let conutryCode=msg.split(" ")[1].toUpperCase();    // 화폐 코드
-    let money=msg.split(" ")[2];                               // 원화 금액
+    let money=msg.split(" ")[2];                        // 원화 금액
 
     try {
 

@@ -1,24 +1,49 @@
 // Gemini 챗봇
+
+// gemini AI API 키 설정
+const CHAT_HISTORY_LIMIT = 10; // 사용자별 대화기록 최대 10개
+const chatHistory = {}; // 사용자별 대화기록 저장용 객체
+const MODEL_NAME = "gemini-2.5-flash-latest";
+const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=";
+
 function getAIResponse(sender, msg, apiKey) {
 
     let text = msg.substr(3); // ".챗 " 명령어 이후 텍스트
     let result;
     let aiMessage = ""; // ✅ 스코프 밖에 선언해서 어디서든 접근 가능
 
-const MODEL_NAME = "gemini-2.5-flash-latest";
-const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + apiKey;
+
+    // 사용자별 대화 기록 초기화
+    if (!chatHistory[sender]) {
+        chatHistory[sender] = [
+            {
+                role: "user", // system 메시지를 대신 user로 보냄
+                parts: [{ text: text + "\n(짧고 간결하게 2~3줄 이내로 대답해줘.)" }]
+            }
+        ];
+    }
+
+    // 새로운 메시지 추가
+    chatHistory[sender].push({
+        role: "user",
+        parts: [{ text: text }]
+    });
+
+    // 기록이 너무 길면 오래된 것 삭제
+    if (chatHistory[sender].length > CHAT_HISTORY_LIMIT * 2) {
+        chatHistory[sender] = chatHistory[sender].slice(-CHAT_HISTORY_LIMIT * 2);
+    }
 
     const data = {
-        contents: [
-            {
-                parts: [{ text: text }]
-            }
-        ]
+        contents: chatHistory[sender],
+        generationConfig: {
+            temperature: 0.6, // 낮을수록 짧고 직설적인 답
+        }
     };
 
     try {
         // ✅ Jsoup으로 간단히 요청
-        const response = org.jsoup.Jsoup.connect(API_URL)
+        const response = org.jsoup.Jsoup.connect(API_URL + apiKey)
             .header("Content-Type", "application/json")
             .requestBody(JSON.stringify(data))
             .ignoreContentType(true)

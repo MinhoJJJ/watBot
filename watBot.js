@@ -30,7 +30,7 @@ function onCommand(msg) {
             msg.reply(modules.chat_record.getChatRecordFuntion(content, KV, msg.room));
         }
         else if (command.startsWith("금지어")) {
-            msg.reply(modules.ban_list.getBanListFuntion(content, KV));
+            msg.reply(modules.ban_list.getBanListFuntion(content, KV,sender));
         }
         else if (command === "챗") {
             msg.reply(modules.ai_gemini_data.getAIResponse(sender, content, modules.api_key.getApiKey("gemini")));

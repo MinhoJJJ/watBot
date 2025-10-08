@@ -5,30 +5,36 @@ const forbidden_words_sender_list = "forbidden_words_sender_list";
 
 
 // 금지어 관련 함수 분기
-function getBanListFuntion(msg,KV) {
+function getBanListFuntion(msg,KV,sender) {
 
-    // 19금지어 추가
-    if (msg.startsWith(".금지어19추가 ")) {
-        return addForbiddenWord(msg,KV,"19");
-    }
-    else if (msg.startsWith(".금지어추가 ")) {
-        return addForbiddenWord(msg,KV,null);
-    }         
-    // 금지어 목록 보기
-    else if (msg.startsWith(".금지어목록")) {
-        return showForbiddenWords(KV,null);
-    }
-        //19금지어 목록 보기
-    else if (msg.startsWith(".금지어19목록")) {
-        return showForbiddenWords(KV,"19");
-    }
-    // 금지어 삭제
-    else if (msg.startsWith(".금지어삭제 ")) {
-        return removeForbiddenWord(msg,KV,"19");
-    }
-    // 19금지어 삭제
-    else if (msg.startsWith(".금지어19삭제 ")) {
-        return removeForbiddenWord(msg,KV,null);
+   // sender 체크 — "나폴", "왓", "승겡" 중 하나 포함 여부
+    const allowedSenders = ["나폴리탄", "WAT", "승겡","민호"];
+    if (!allowedSenders.some(name => sender.includes(name))) {
+        return "금지어 관련 명령어는 방장 및 부방장만 사용가능합니다."
+    }else{
+        // 19금지어 추가
+        if (msg.startsWith(".금지어19추가 ")) {
+            return addForbiddenWord(msg,KV,"19");
+        }
+        else if (msg.startsWith(".금지어추가 ")) {
+            return addForbiddenWord(msg,KV,null);
+        }         
+        // 금지어 목록 보기
+        else if (msg.startsWith(".금지어목록")) {
+            return showForbiddenWords(KV,null);
+        }
+            //19금지어 목록 보기
+        else if (msg.startsWith(".금지어19목록")) {
+            return showForbiddenWords(KV,"19");
+        }
+        // 금지어 삭제
+        else if (msg.startsWith(".금지어삭제 ")) {
+            return removeForbiddenWord(msg,KV,"19");
+        }
+        // 19금지어 삭제
+        else if (msg.startsWith(".금지어19삭제 ")) {
+            return removeForbiddenWord(msg,KV,null);
+        }
     }
 }
 

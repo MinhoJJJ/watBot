@@ -33,9 +33,8 @@ function onCommand(msg) {
             msg.reply(modules.ban_list.getBanListFuntion(content, KV, sender));
         }
         else if (command === "챗") {
-            // ✅ 인자 4개: sender, content, apiKey, KV 가 정확히 넘어가는지 확인
-            var geminiApiKey = modules.api_key.getApiKey("gemini");
-            msg.reply(modules.ai_gemini_data.getAIResponse(sender, content, geminiApiKey, KV));
+            // ✅ modules 객체를 마지막 인자로 추가로 전달합니다.
+            msg.reply(modules.ai_gemini_data.getAIResponse(sender, content, modules.api_key.getApiKey("gemini"), KV, modules));
         }
         else if (command === "번역" || command === "84") {
             msg.reply(modules.deepL_data.getTransResponse(content, modules.api_key.getApiKey("deepl")));

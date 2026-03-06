@@ -11,6 +11,8 @@ module.exports = {
     ban_list: require('./ban_list.js'),
     chat_record: require('./chat_record.js'),
     weather_data: require('./weather_data.js'),
+    estate_data: require('./estate_data.js'),
+    legal_code_data: require('./legal_code_data.js'),
     api_key: require('./api_key_list.js'),
     RhinoKV: require('RhinoKV')
 };

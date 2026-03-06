@@ -30,7 +30,7 @@ function onCommand(msg) {
             msg.reply(modules.chat_record.getChatRecordFuntion(content, KV, msg.room));
         }
         else if (command.startsWith("금지어")) {
-            msg.reply(modules.ban_list.getBanListFuntion(content, KV,sender));
+            msg.reply(modules.ban_list.getBanListFuntion(content, KV, sender));
         }
         else if (command === "챗") {
             msg.reply(modules.ai_gemini_data.getAIResponse(sender, content, modules.api_key.getApiKey("gemini")));
@@ -63,7 +63,7 @@ function onCommand(msg) {
             msg.reply(modules.command_data.getCommandData(content));
         }
     } catch (e) {
-        msg.reply("오류 발생: "+e);
+        msg.reply("오류 발생: " + e);
     } finally {
         isRunning = false; // 실행 완료 후 초기화
     }
@@ -95,13 +95,13 @@ function onCreate(savedInstanceState, activity) {
     activity.setContentView(textView);
 }
 
-function onStart(activity) {}
-function onResume(activity) {}
-function onPause(activity) {}
-function onStop(activity) {}
-function onRestart(activity) {}
-function onDestroy(activity) {}
-function onBackPressed(activity) {}
+function onStart(activity) { }
+function onResume(activity) { }
+function onPause(activity) { }
+function onStop(activity) { }
+function onRestart(activity) { }
+function onDestroy(activity) { }
+function onBackPressed(activity) { }
 
 bot.addListener(Event.Activity.CREATE, onCreate);
 bot.addListener(Event.Activity.START, onStart);

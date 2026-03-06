@@ -1,8 +1,8 @@
 const bot = BotManager.getCurrentBot();
 const modules = require('total_modules.js');
 
-// DB 객체 생성
-let KV = new modules.RhinoKV();
+// ✅ DB 객체 생성 (var로 변경하여 어디서든 참조 가능하게 함)
+var KV = new modules.RhinoKV();
 KV.open('/sdcard/msgbot/db/watBot/watBotDB.db');
 
 // 봇 세팅
@@ -33,7 +33,9 @@ function onCommand(msg) {
             msg.reply(modules.ban_list.getBanListFuntion(content, KV, sender));
         }
         else if (command === "챗") {
-            msg.reply(modules.ai_gemini_data.getAIResponse(sender, content, modules.api_key.getApiKey("gemini")));
+            // ✅ 인자 4개: sender, content, apiKey, KV 가 정확히 넘어가는지 확인
+            var geminiApiKey = modules.api_key.getApiKey("gemini");
+            msg.reply(modules.ai_gemini_data.getAIResponse(sender, content, geminiApiKey, KV));
         }
         else if (command === "번역" || command === "84") {
             msg.reply(modules.deepL_data.getTransResponse(content, modules.api_key.getApiKey("deepl")));
@@ -70,23 +72,18 @@ function onCommand(msg) {
 }
 
 function onMessage(msg) {
-
     const content = msg.content;
     const sender = msg.author.name;
-
     if (!content.startsWith(".")) {
         modules.chat_record.addChatCount(sender, KV, msg.room);
-
         if (modules.ban_list.containsForbiddenWord(content, KV, "19")) {
             msg.reply(modules.ban_list.addBanCount(sender, KV, "19"));
         }
-
         if (modules.ban_list.containsForbiddenWord(content, KV, null)) {
             msg.reply(modules.ban_list.addBanCount(sender, KV, null));
         }
     }
 }
-
 
 function onCreate(savedInstanceState, activity) {
     var textView = new android.widget.TextView(activity);
@@ -95,19 +92,11 @@ function onCreate(savedInstanceState, activity) {
     activity.setContentView(textView);
 }
 
-function onStart(activity) { }
-function onResume(activity) { }
-function onPause(activity) { }
-function onStop(activity) { }
-function onRestart(activity) { }
-function onDestroy(activity) { }
-function onBackPressed(activity) { }
-
 bot.addListener(Event.Activity.CREATE, onCreate);
-bot.addListener(Event.Activity.START, onStart);
-bot.addListener(Event.Activity.RESUME, onResume);
-bot.addListener(Event.Activity.PAUSE, onPause);
-bot.addListener(Event.Activity.STOP, onStop);
-bot.addListener(Event.Activity.RESTART, onRestart);
-bot.addListener(Event.Activity.DESTROY, onDestroy);
-bot.addListener(Event.Activity.BACK_PRESSED, onBackPressed);
+bot.addListener(Event.Activity.START, function(a){});
+bot.addListener(Event.Activity.RESUME, function(a){});
+bot.addListener(Event.Activity.PAUSE, function(a){});
+bot.addListener(Event.Activity.STOP, function(a){});
+bot.addListener(Event.Activity.RESTART, function(a){});
+bot.addListener(Event.Activity.DESTROY, function(a){});
+bot.addListener(Event.Activity.BACK_PRESSED, function(a){});

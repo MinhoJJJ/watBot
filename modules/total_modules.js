@@ -17,9 +17,10 @@ modules.legal = require('./external_api/legal.js');
 modules.baby = require('./local_api/baby.js');
 modules.ban = require('./local_api/ban.js');
 modules.chat = require('./local_api/chat.js');
+modules.data = require('./local_api/data.js'); // 추가: 데이터 검색 모듈
 
 // 3. 유틸리티 및 시스템 모듈 (util/)
-modules.apiKey = require('./api_key_list.js');
+modules.apiKey = require('./util/apiKey.js');
 modules.command = require('./util/command.js');
 modules.RhinoKV = require('./util/rhinokv.js');
 modules.export = require('./util/export.js');

@@ -32,6 +32,9 @@ function onCommand(msg) {
         else if (command.startsWith("금지어")) {
             msg.reply(modules.ban.getBanListFuntion(content, KV, sender));
         }
+        else if (command.startsWith("데이터")) {
+            msg.reply(modules.data.searchDatabase(content, KV));
+        }
         else if (command === "챗") {
             if (modules.ai && modules.ai.gemini) {
                 msg.reply(modules.ai.gemini.getAIResponse(sender, content, modules.apiKey.getApiKey("gemini"), KV, modules));

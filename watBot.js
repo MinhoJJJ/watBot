@@ -1,8 +1,8 @@
 const bot = BotManager.getCurrentBot();
 const modules = require('total_modules.js');
 
-// ✅ DB 객체 생성 (var로 변경하여 어디서든 참조 가능하게 함)
-var KV = new modules.RhinoKV();
+// ✅ DB 객체 생성
+var KV = new modules.RhinoKV(); // modules.util.RhinoKV로 접근하지 않고 total_modules에서 export한 이름으로 사용
 KV.open('/sdcard/msgbot/db/watBot/watBotDB.db');
 
 // 봇 세팅
@@ -27,41 +27,44 @@ function onCommand(msg) {
 
     try {
         if (command.startsWith("채팅")) {
-            msg.reply(modules.chat_record.getChatRecordFuntion(content, KV, msg.room));
+            msg.reply(modules.chat.getChatRecordFuntion(content, KV, msg.room));
         }
         else if (command.startsWith("금지어")) {
-            msg.reply(modules.ban_list.getBanListFuntion(content, KV, sender));
+            msg.reply(modules.ban.getBanListFuntion(content, KV, sender));
         }
         else if (command === "챗") {
-            // ✅ modules 객체를 마지막 인자로 추가로 전달합니다.
-            msg.reply(modules.ai.gemini.getAIResponse(sender, content, modules.api_key.getApiKey("gemini"), KV, modules));
+            if (modules.ai && modules.ai.gemini) {
+                msg.reply(modules.ai.gemini.getAIResponse(sender, content, modules.apiKey.getApiKey("gemini"), KV, modules));
+            } else {
+                msg.reply("⚠️ AI 모듈 로드 실패 (ai.gemini가 정의되지 않음)");
+            }
         }
         else if (command === "번역" || command === "84") {
-            msg.reply(modules.deepL_data.getTransResponse(content, modules.api_key.getApiKey("deepl")));
+            msg.reply(modules.deepl.getTransResponse(content, modules.apiKey.getApiKey("deepl")));
         }
         else if (command === "간사이" || command === "나리타") {
-            msg.reply(modules.station_time_data.getUpcomingTrains(content));
+            msg.reply(modules.station.getUpcomingTrains(content));
         }
         else if (command === "역") {
-            msg.reply(modules.subway_data.getKoreaSubwayInfo(content, modules.api_key.getApiKey("subway")));
+            msg.reply(modules.subway.getKoreaSubwayInfo(content, modules.apiKey.getApiKey("subway")));
         }
         else if (command === "환율") {
-            msg.reply(modules.rate_data.getRate(modules.api_key.getApiKey("rate")));
+            msg.reply(modules.rate.getRate(modules.apiKey.getApiKey("rate")));
         }
         else if (command === "버스") {
-            msg.reply(modules.bus_data.getBusInfo(content));
+            msg.reply(modules.bus.getBusInfo(content));
         }
         else if (command === "명령어") {
-            msg.reply(modules.command_data.getCommandData(content));
+            msg.reply(modules.command.getCommandData(content));
         }
         else if (command === "날씨") {
-            msg.reply(modules.weather_data.getWeatherFromNaver(content));
+            msg.reply(modules.weather.getWeatherFromNaver(content));
         }
         else if (command === "환전") {
-            msg.reply(modules.rate_data.getChangMoney(content));
+            msg.reply(modules.rate.getChangMoney(content));
         }
         else {
-            msg.reply(modules.command_data.getCommandData(content));
+            msg.reply(modules.command.getCommandData(content));
         }
     } catch (e) {
         msg.reply("오류 발생: " + e);
@@ -74,12 +77,12 @@ function onMessage(msg) {
     const content = msg.content;
     const sender = msg.author.name;
     if (!content.startsWith(".")) {
-        modules.chat_record.addChatCount(sender, KV, msg.room);
-        if (modules.ban_list.containsForbiddenWord(content, KV, "19")) {
-            msg.reply(modules.ban_list.addBanCount(sender, KV, "19"));
+        modules.chat.addChatCount(sender, KV, msg.room);
+        if (modules.ban.containsForbiddenWord(content, KV, "19")) {
+            msg.reply(modules.ban.addBanCount(sender, KV, "19"));
         }
-        if (modules.ban_list.containsForbiddenWord(content, KV, null)) {
-            msg.reply(modules.ban_list.addBanCount(sender, KV, null));
+        if (modules.ban.containsForbiddenWord(content, KV, null)) {
+            msg.reply(modules.ban.addBanCount(sender, KV, null));
         }
     }
 }

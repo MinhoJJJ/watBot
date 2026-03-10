@@ -14,9 +14,12 @@ const RATE_API_KEY="";// API 키 입력
 //제미나이
 const GEMINI_API_KEY="";// API 키 입력
 
-function getApiKey1(msg){
+// 부동산
+const ESTATE_API_KEY="";
 
-    let result;
+function getApiKey(msg){
+
+    let result = "";
 
     if(msg=="rate"){
         result=RATE_API_KEY;
@@ -26,10 +29,14 @@ function getApiKey1(msg){
         result=GPT_API_KEY;
     }else if(msg=="deepl"){
         result=DEEPL_API_KEY;
+    }else if(msg=="gemini"){
+        result=GEMINI_API_KEY;
+    }else if(msg=="estate"){
+        result=ESTATE_API_KEY;
     }
 
     return result
 }
 
 // export 데이터
-exports.getApiKey1 = getApiKey1;
+exports.getApiKey = getApiKey;

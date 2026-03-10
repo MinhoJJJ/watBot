@@ -1,6 +1,6 @@
 // 부동산 실거래가 조회 모듈 ( estate_data.js )
-var legal_code_data = require('./legal_code_data.js');
-var api_key_list = require('./api_key_list.js');
+var legal_code_data = require('./legal.js');
+var api_key_list = require('../util/apiKey.js');
 
 var API_KEY = api_key_list.getApiKey("estate");
 var BASE_URL = "https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade";

@@ -1,24 +1,35 @@
-module.exports = {
-    station_time_data: require('./station_time_data.js'),
-    deepL_data: require('./deepL.js'),
-    subway_data: require('./subway_data.js'),
-    baby_data: require('./baby_data.js'),
-    rate_data: require('./rate_data.js'),
-    bus_data: require('./bus_data.js'),
-    command_data: require('./command_data.js'),
-    ban_list: require('./ban_list.js'),
-    chat_record: require('./chat_record.js'),
-    weather_data: require('./weather_data.js'),
-    estate_data: require('./estate_data.js'),
-    finance_data: require('./finance_native.js'),
-    legal_code_data: require('./legal_code_data.js'),
-    ai: {
-        gemini: require('./ai/gemini.js'),
-        finance: require('./ai/finance.js'),
-        estate: require('./ai/estate.js'),
-        legal: require('./ai/legal.js'),
-        persona: require('./ai/persona.js')
-    },
-    api_key: require('./api_key_list.js'),
-    RhinoKV: require('RhinoKV')
-};
+// total_modules.js - 모든 모듈을 통합 관리 (구조적 폴더 트리 반영)
+
+var modules = {};
+
+// 1. 외부 API 연동 모듈 (external_api/)
+modules.station = require('./external_api/station.js');
+modules.deepl = require('./external_api/deepl.js');
+modules.subway = require('./external_api/subway.js');
+modules.rate = require('./external_api/rate.js');
+modules.bus = require('./external_api/bus.js');
+modules.weather = require('./external_api/weather.js');
+modules.estate = require('./external_api/estate.js');
+modules.finance = require('./external_api/finance.js');
+modules.legal = require('./external_api/legal.js');
+
+// 2. 로컬 비즈니스 로직 모듈 (local_api/)
+modules.baby = require('./local_api/baby.js');
+modules.ban = require('./local_api/ban.js');
+modules.chat = require('./local_api/chat.js');
+
+// 3. 유틸리티 및 시스템 모듈 (util/)
+modules.apiKey = require('./api_key_list.js');
+modules.command = require('./util/command.js');
+modules.RhinoKV = require('./util/rhinokv.js');
+modules.export = require('./util/export.js');
+
+// 4. AI 핵심 엔진 (ai/)
+modules.ai = {};
+modules.ai.gemini = require('./ai/gemini.js');
+modules.ai.finance = require('./ai/finance.js');
+modules.ai.estate = require('./ai/estate.js');
+modules.ai.legal = require('./ai/legal.js');
+modules.ai.persona = require('./ai/persona.js');
+
+module.exports = modules;

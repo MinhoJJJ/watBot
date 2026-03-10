@@ -34,7 +34,7 @@ function onCommand(msg) {
         }
         else if (command === "챗") {
             // ✅ modules 객체를 마지막 인자로 추가로 전달합니다.
-            msg.reply(modules.ai_gemini_data.getAIResponse(sender, content, modules.api_key.getApiKey("gemini"), KV, modules));
+            msg.reply(modules.ai.gemini.getAIResponse(sender, content, modules.api_key.getApiKey("gemini"), KV, modules));
         }
         else if (command === "번역" || command === "84") {
             msg.reply(modules.deepL_data.getTransResponse(content, modules.api_key.getApiKey("deepl")));

@@ -1,7 +1,5 @@
 module.exports = {
     station_time_data: require('./station_time_data.js'),
-    ai_gpt_data: require('./ai_gpt.js'),
-    ai_gemini_data: require('./ai_gemini.js'),
     deepL_data: require('./deepL.js'),
     subway_data: require('./subway_data.js'),
     baby_data: require('./baby_data.js'),
@@ -14,6 +12,13 @@ module.exports = {
     estate_data: require('./estate_data.js'),
     finance_data: require('./finance_native.js'),
     legal_code_data: require('./legal_code_data.js'),
+    ai: {
+        gemini: require('./ai/gemini.js'),
+        finance: require('./ai/finance.js'),
+        estate: require('./ai/estate.js'),
+        legal: require('./ai/legal.js'),
+        persona: require('./ai/persona.js')
+    },
     api_key: require('./api_key_list.js'),
     RhinoKV: require('RhinoKV')
 };

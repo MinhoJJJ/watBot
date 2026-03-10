@@ -14,6 +14,24 @@ function getMarketPredictionData(query) {
     return data.fullText;
 }
 
+var LOG_FILE_PATH = "/sdcard/msgbot/Bots/watBot/log/log.txt";
+
+/**
+ * 로그 기록용 (java.io 사용)
+ */
+function appendLog(msg) {
+    try {
+        var file = new java.io.File(LOG_FILE_PATH);
+        var fw = new java.io.FileWriter(file, true); // true for append
+        var now = new java.util.Date();
+        var timestamp = "[" + (now.getYear() + 1900) + "-" + (now.getMonth() + 1) + "-" + now.getDate() + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds() + "] ";
+        fw.write(timestamp + msg + "\n");
+        fw.close();
+    } catch (e) {
+        // 로그 기록 자체 실패는 무시
+    }
+}
+
 /**
  * 네이버 검색/금융에서 직접 데이터 크롤링 (가장 안정적인 방식)
  * @param {string} assetName 자산 이름
@@ -35,15 +53,12 @@ function crawlStockDirect(assetName) {
         var gap = "";
 
         if (isCrypto) {
-            // 코인 시세 (네이버 검색 결과)
             price = doc.select(".s_price strong").text() || doc.select(".price_info strong").text();
         } else {
-            // 주식 시세 (네이버 검색 결과)
             price = doc.select(".s_price strong").text() || doc.select(".price_info strong").text() || doc.select(".no_today .blind").text();
             gap = doc.select(".s_price .n_chg").text() || doc.select(".price_info .n_chg").text();
         }
 
-        // 만약 선택자로 못 가져왔다면 전체 텍스트에서 '원' 앞의 숫자 추출 시도 (최후의 보루)
         if (!price || price.length < 2) {
             var fullText = doc.text();
             var match = fullText.match(/현재가\s*([\d,]+)/) || fullText.match(/([\d,]+)원/);
@@ -51,6 +66,7 @@ function crawlStockDirect(assetName) {
         }
 
         if (price && price.length > 1) {
+            appendLog("✅ [성공] " + assetName + " 크롤링 성공 (현재가: " + price + ")");
             var resText = "【" + assetName + " 실시간 시장 데이터】\n";
             resText += " - 현재가: " + price + "원" + (gap ? " (변동: " + gap + ")" : "") + "\n";
             resText += " - 기준일시: " + date + "\n";
@@ -63,19 +79,21 @@ function crawlStockDirect(assetName) {
                 fullText: resText
             };
         } else {
+            appendLog("❌ [실패] " + assetName + " 주가 파싱 실패 (HTML 구조 변경 의심)");
             return {
                 name: assetName,
                 currentPrice: null,
                 lastDate: date,
-                fullText: "⚠️ " + assetName + " 주가 정보를 페이지에서 찾을 수 없습니다. (구조 변경 의심)"
+                fullText: "⚠️ " + assetName + " 주가 정보를 페이지에서 찾을 수 없습니다."
             };
         }
     } catch (e) {
+        appendLog("🔥 [오류] " + assetName + " 크롤링 중 네트워크 에러: " + e.message);
         return {
             name: assetName,
             currentPrice: null,
             lastDate: date,
-            fullText: "❌ " + assetName + " 크롤링 중 네트워크 오류: " + e.message
+            fullText: "❌ " + assetName + " 크롤링 중 네트워크 오류 발생"
         };
     }
 }
@@ -88,7 +106,6 @@ function analyzeMarket(query) {
     var endpoint = "";
     var assetName = "";
 
-    // 1. 자산 종류 판별
     if (query.indexOf("비트코인") !== -1 || query.toLowerCase().indexOf("btc") !== -1) { endpoint = "/api/market/bitcoin"; assetName = "비트코인"; }
     else if (query.indexOf("이더리움") !== -1 || query.toLowerCase().indexOf("eth") !== -1) { endpoint = "/api/market/ethereum"; assetName = "이더리움"; }
     else if (query.indexOf("삼성전자") !== -1 || query.indexOf("삼전") !== -1) { endpoint = "/api/market/samsung"; assetName = "삼성전자"; }
@@ -98,18 +115,19 @@ function analyzeMarket(query) {
 
     if (!endpoint) return null; 
 
-    // 2. 먼저 백엔드 시도
     try {
         var url = BACKEND_URL + endpoint;
         var response = org.jsoup.Jsoup.connect(url)
             .ignoreContentType(true)
             .ignoreHttpErrors(true)
-            .timeout(5000) // 백엔드는 짧게 시도
+            .timeout(5000)
             .get();
 
         var json = JSON.parse(response.text());
 
         if (json.data && json.data.length > 0) {
+            appendLog("✅ [백엔드] " + assetName + " 데이터 수신 성공");
+            // ... (생략된 기존 성공 로직)
             var lastEntry = json.data[json.data.length - 1];
             var recentPrice = lastEntry.close;
             var lastDate = lastEntry.date || new Date().toISOString().split('T')[0];
@@ -144,13 +162,13 @@ function analyzeMarket(query) {
             };
         }
     } catch (e) {
-        // 백엔드 실패 시 직접 크롤링 시도
+        appendLog("⚠️ [백엔드 오프라인] " + assetName + " 직접 크롤링으로 전환 (사유: " + e.message + ")");
     }
 
-    // 3. 백엔드 실패 시 직접 크롤링 (주식만 우선 구현)
     var crawlRes = crawlStockDirect(assetName);
     if (crawlRes) return crawlRes;
 
+    appendLog("💣 [최종 실패] " + assetName + " 모든 수단 실패");
     return "⚠️ " + assetName + " 데이터를 불러오지 못했습니다. (백엔드 및 크롤링 모두 실패)";
 }
 

@@ -1,42 +1,39 @@
+﻿var realApiKeys = null;
+try {
+    realApiKeys = require('../api_key_list.js');
+} catch (e) {
+}
 
-// DEEPL
-const DEEPL_API_KEY = '';
-
-// 챗 GPT
-const GPT_API_KEY = ""; // Open AI 사이트에서 발급받은 API 키입력
-
-// 지하철
-const SUBWAY_API_KEY="";
-
-//환율
-const RATE_API_KEY="";// API 키 입력
-
-//제미나이
-const GEMINI_API_KEY="";// API 키 입력
-
-// 부동산
-const ESTATE_API_KEY="";
+var DEEPL_API_KEY = '';
+var GPT_API_KEY = '';
+var SUBWAY_API_KEY = '';
+var RATE_API_KEY = '';
+var GEMINI_API_KEY = '';
+var ESTATE_API_KEY = '';
 
 function getApiKey(msg){
+    if (realApiKeys && typeof realApiKeys.getApiKey === 'function') {
+        var key = realApiKeys.getApiKey(msg);
+        if (key) return key;
+    }
 
-    let result = "";
+    var result = '';
 
-    if(msg=="rate"){
+    if(msg=='rate'){
         result=RATE_API_KEY;
-    }else if(msg=="subway"){
+    }else if(msg=='subway'){
         result=SUBWAY_API_KEY;
-    }else if(msg=="gpt"){
+    }else if(msg=='gpt'){
         result=GPT_API_KEY;
-    }else if(msg=="deepl"){
+    }else if(msg=='deepl'){
         result=DEEPL_API_KEY;
-    }else if(msg=="gemini"){
+    }else if(msg=='gemini'){
         result=GEMINI_API_KEY;
-    }else if(msg=="estate"){
+    }else if(msg=='estate'){
         result=ESTATE_API_KEY;
     }
 
-    return result
+    return result;
 }
 
-// export 데이터
 exports.getApiKey = getApiKey;

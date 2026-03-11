@@ -53,29 +53,29 @@ function getAIResponse(sender, msg, apiKey, KV, allModules) {
 
     // [금융 분석] 주식/코인 관련 질문인지 확인하고 데이터 수집
     var financeRes = allModules.ai.finance.handleFinance(text, allModules);
-    if (financeRes.isFinanceQuery) { 
-        priceHeader = financeRes.priceHeader; 
-        liveToolData += financeRes.liveToolData; 
+    if (financeRes.isFinanceQuery) {
+        priceHeader = financeRes.priceHeader;
+        liveToolData += financeRes.liveToolData;
     }
 
     // [부동산 분석] 부동산 실거래가 관련 데이터 수집
     var estateRes = allModules.ai.estate.handleEstate(text, allModules);
-    if (estateRes.isEstateQuery) { 
-        liveToolData += estateRes.liveToolData; 
+    if (estateRes.isEstateQuery) {
+        liveToolData += estateRes.liveToolData;
     }
 
     // [행정/법률] 법률 관련 키워드가 있는지 확인하고 가이드 준비
     var legalRes = allModules.ai.legal.handleLegal(text, allModules);
-    if (legalRes.isLegalQuery) { 
-        liveToolData += legalRes.liveToolData; 
+    if (legalRes.isLegalQuery) {
+        liveToolData += legalRes.liveToolData;
     }
 
     // 특정 키워드 포함 시 추가 실시간 정보 호출 (환율, 날씨 등)
-    if (text.indexOf("환율") !== -1) { 
-        try { liveToolData += "【환율】\n" + allModules.rate.getRate(allModules.apiKey.getApiKey("rate")) + "\n\n"; } catch (e) {} 
+    if (text.indexOf("환율") !== -1) {
+        try { liveToolData += "【환율】\n" + allModules.rate.getRate(allModules.apiKey.getApiKey("rate")) + "\n\n"; } catch (e) { }
     }
-    if (text.indexOf("날씨") !== -1) { 
-        try { liveToolData += "【날씨】\n" + allModules.weather.getWeatherFromNaver(text) + "\n\n"; } catch (e) {} 
+    if (text.indexOf("날씨") !== -1) {
+        try { liveToolData += "【날씨】\n" + allModules.weather.getWeatherFromNaver(text) + "\n\n"; } catch (e) { }
     }
 
     // 4. 지식 베이스(RAG) 및 메모리 조회
@@ -94,27 +94,27 @@ function getAIResponse(sender, msg, apiKey, KV, allModules) {
                 }
             }
         }
-    } catch (e) {}
+    } catch (e) { }
 
     // 5. 페르소나(전문성) 및 시스템 지침 설정
     var pInfo = allModules.ai.persona.getPersonaInfo(text, financeRes.isFinanceQuery, estateRes.isEstateQuery, legalRes.isLegalQuery);
-    
+
     // AI에게 부여할 성격과 필수 규칙 정의
     var systemInstruction = pInfo.persona + "\n" +
-                           "[현재 시점]: " + dateContext + "\n\n" +
-                           "【필수 지침】\n" +
-                           "1. 아래 [실시간 연동 데이터] 섹션에 데이터가 있다면, 반드시 해당 수치를 바탕으로 분석하세요.\n" +
-                           "2. 데이터가 '조회 실패'이거나 없는 경우에만 데이터 부재에 대해 언급하세요.\n" +
-                           (pInfo.specificInstruction || "3. 질문에 대해 논리적이고 친절하게 답변하세요.\n") +
-                           "5. 사용자를 부를 때는 반드시 '" + sender + "님'이라고 부르세요.\n" +
-                           "6. 답변 하단에는 반드시 해당 정보에 대해 '면책 조항'을 포함하세요.\n\n" +
-                           "[봇의 메모]\n" + globalMemos;
+        "[현재 시점]: " + dateContext + "\n\n" +
+        "【필수 지침】\n" +
+        "1. 아래 [실시간 연동 데이터] 섹션에 데이터가 있다면, 반드시 해당 수치를 바탕으로 분석하세요.\n" +
+        "2. 데이터가 '조회 실패'이거나 없는 경우에만 데이터 부재에 대해 언급하세요.\n" +
+        (pInfo.specificInstruction || "3. 질문에 대해 논리적이고 친절하게 답변하세요.\n") +
+        "5. 사용자를 부를 때는 반드시 '" + sender + "님'이라고 부르세요.\n" +
+        "6. 답변 하단에는 반드시 해당 정보에 대해 '면책 조항'을 포함하세요.\n\n" +
+        "[봇의 메모]\n" + globalMemos;
 
     // 6. 최종 프롬프트 구성
     var finalPrompt = "[시스템 지침]\n" + systemInstruction + "\n\n" +
-                      "[실시간 연동 데이터]\n" + (liveToolData || "데이터 없음") + "\n\n" +
-                      (retrievedKnowledge ? "[세고 데이터]\n" + retrievedKnowledge + "\n\n" : "") +
-                      "[사용자 질문]\n" + text;
+        "[실시간 연동 데이터]\n" + (liveToolData || "데이터 없음") + "\n\n" +
+        (retrievedKnowledge ? "[세고 데이터]\n" + retrievedKnowledge + "\n\n" : "") +
+        "[사용자 질문]\n" + text;
 
     // 7. 대화 기록 관리 (멀티턴 대화 유지)
     if (!chatHistory[sender]) chatHistory[sender] = [];
@@ -122,12 +122,12 @@ function getAIResponse(sender, msg, apiKey, KV, allModules) {
     chatHistory[sender].push({ role: "user", parts: [{ text: finalPrompt }] });
 
     // 8. Gemini API 호출 데이터 준비
-    var data = { 
-        contents: chatHistory[sender], 
-        generationConfig: { 
+    var data = {
+        contents: chatHistory[sender],
+        generationConfig: {
             temperature: 0.2, // 창의성 낮춤 (정확도 우선)
-            maxOutputTokens: 2000 
-        } 
+            maxOutputTokens: 2000
+        }
     };
 
     try {
@@ -145,23 +145,23 @@ function getAIResponse(sender, msg, apiKey, KV, allModules) {
         var json = JSON.parse(response.body());
         if (json.candidates && json.candidates[0]) {
             var aiMessage = json.candidates[0].content.parts[0].text.trim();
-            
+
             // 프롬프트가 너무 길어 기록을 망치지 않게 원본 질문으로 교체 저장
             chatHistory[sender][chatHistory[sender].length - 1].parts[0].text = text;
             // AI의 답변을 기록에 추가
             chatHistory[sender].push({ role: "model", parts: [{ text: aiMessage }] });
-            
+
             // 기록 개수 제한 (성능 및 토큰 관리)
             if (chatHistory[sender].length > CHAT_HISTORY_LIMIT * 2) {
                 chatHistory[sender] = chatHistory[sender].slice(chatHistory[sender].length - CHAT_HISTORY_LIMIT * 2);
             }
-            
+
             // 최종 답변 반환 (헤더 + 가격요약 + AI 답변)
             return pInfo.headerPrefix + priceHeader + aiMessage;
         }
         return "⚠️ 답변 생성 실패";
-    } catch (e) { 
-        return "❌ 오류: " + e.message; 
+    } catch (e) {
+        return "❌ 오류: " + e.message;
     }
 }
 

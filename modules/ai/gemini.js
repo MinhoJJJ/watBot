@@ -8,7 +8,7 @@
 // --- 설정 및 전역 변수 ---
 var CHAT_HISTORY_LIMIT = 5; // 이전 대화를 기억할 개수 (사용자+모델 한 쌍 기준)
 var chatHistory = {};       // 사용자별 대화 기록 저장소 (메모리 상에 유지)
-var MODEL_NAME = "gemini-2.5-flash"; // 사용할 제미나이 모델명
+var MODEL_NAME = "gemini-2.5-flash"; // 원래대로 복구
 var API_URL = "https://generativelanguage.googleapis.com/v1/models/" + MODEL_NAME + ":generateContent?key=";
 var KNOWLEDGE_PATH = "/sdcard/msgbot/Bots/watBot/knowledge/"; // 로컬 지식 베이스 파일 경로
 
@@ -58,6 +58,22 @@ function getAIResponse(sender, msg, apiKey, KV, allModules) {
         liveToolData += financeRes.liveToolData;
     }
 
+    // [사주 분석] 사주 관련 질문인지 확인
+    var isSajuQuery = false;
+    var isTodaySajuQuery = false;
+    if (msg.startsWith(".사주") || msg.startsWith(".오늘의사주")) {
+        var sajuRes = allModules.ai.saju.handleSaju(msg);
+        if (sajuRes.isSajuQuery) {
+            isSajuQuery = true;
+            isTodaySajuQuery = sajuRes.isTodaySajuQuery;
+            liveToolData += sajuRes.sajuContext;
+            var suffix = isTodaySajuQuery ? "오늘의 운세" : "명리 데이터 분석";
+            text = sajuRes.birthDate + " 생년월일에 대한 " + suffix + "을 해줘.";
+        } else {
+            return sajuRes.error;
+        }
+    }
+
     // [부동산 분석] 부동산 실거래가 관련 데이터 수집
     var estateRes = allModules.ai.estate.handleEstate(text, allModules);
     if (estateRes.isEstateQuery) {
@@ -97,7 +113,7 @@ function getAIResponse(sender, msg, apiKey, KV, allModules) {
     } catch (e) { }
 
     // 5. 페르소나(전문성) 및 시스템 지침 설정
-    var pInfo = allModules.ai.persona.getPersonaInfo(text, financeRes.isFinanceQuery, estateRes.isEstateQuery, legalRes.isLegalQuery);
+    var pInfo = allModules.ai.persona.getPersonaInfo(text, financeRes.isFinanceQuery, estateRes.isEstateQuery, legalRes.isLegalQuery, isSajuQuery, isTodaySajuQuery);
 
     // AI에게 부여할 성격과 필수 규칙 정의
     var systemInstruction = pInfo.persona + "\n" +
@@ -125,8 +141,8 @@ function getAIResponse(sender, msg, apiKey, KV, allModules) {
     var data = {
         contents: chatHistory[sender],
         generationConfig: {
-            temperature: 0.2, // 창의성 낮춤 (정확도 우선)
-            maxOutputTokens: 2000
+            temperature: 0.2, // 안정적인 원래 수치로 복구
+            maxOutputTokens: 2000 // 원래 수치로 복구
         }
     };
 

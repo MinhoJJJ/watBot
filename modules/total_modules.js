@@ -26,6 +26,7 @@ modules.ai.gemini = require('./ai/gemini.js');
 modules.ai.finance = require('./ai/finance.js');
 modules.ai.estate = require('./ai/estate.js');
 modules.ai.legal = require('./ai/legal.js');
+modules.ai.saju = require('./ai/saju.js');
 modules.ai.persona = require('./ai/persona.js');
 
 modules.ai_gemini_data = modules.ai.gemini;

@@ -32,16 +32,17 @@ function onCommand(msg) {
         else if (command.startsWith("금지어")) {
             msg.reply(modules.ban.getBanListFuntion(content, KV, sender));
         }
-        else if (command.startsWith("데이터")) {
+        else if (command === "데이터") {
             msg.reply(modules.data.searchDatabase(content, KV));
         }
-        else if (command === "챗") {
+        else if (command === "챗" || command === "사주" || command === "오늘의사주") {
             if (modules.ai && modules.ai.gemini) {
                 msg.reply(modules.ai.gemini.getAIResponse(sender, content, modules.apiKey.getApiKey("gemini"), KV, modules));
             } else {
                 msg.reply("⚠️ AI 모듈 로드 실패 (ai.gemini가 정의되지 않음)");
             }
         }
+
         else if (command === "번역" || command === "84") {
             msg.reply(modules.deepl.getTransResponse(content, modules.apiKey.getApiKey("deepl")));
         }

@@ -12,6 +12,8 @@ function getCommandData(msg){
     }
 
     result+= "[.챗] : 챗지피티\n";
+    result+= "[.사주 YYYYMMDD] : 사주 분석\n";
+    result+= "[.오늘의사주 YYYYMMDD] : 오늘의 운세 분석\n";
     result+= "[.번역] : 일본어 번역\n";
     result+= "[.84] : 한국어 번역\n";
     result+= "[.간사이] : +1시간 난카이 스케줄\n";
